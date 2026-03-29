@@ -1,5 +1,4 @@
 import tkinter as tk
-
 import pages
 
 
@@ -41,7 +40,3 @@ class App(tk.Tk): #TODO: add how this was taken from stackOverflow
         else:
             btn.config(image=image_static)
 
-
-if __name__ == "__main__":
-    app = App()
-    app.mainloop()

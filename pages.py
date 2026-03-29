@@ -10,7 +10,7 @@ class StarterPage(tk.Frame):
         self.load_started_btn(root)
 
     def load_logo(self):
-        logo = tk.PhotoImage(file="bingeBuddyLogo1.png").subsample(2)
+        logo = tk.PhotoImage(file="images/bingeBuddyLogo1.png").subsample(2)
         logo_label = tk.Label(self, image=logo, bg="#3C1D53")
         logo_label.image = logo
         logo_label.pack()
@@ -169,7 +169,7 @@ class MovieConfirmPage(tk.Frame):
         print(str(search_results))
 
         for result in search_results:
-            image_file = Image.open(f"images/{result}.jpg")
+            image_file = Image.open(f"../images/{result}.jpg")
 
             imgStatic_file = image_file.resize((356, 200))
             imgHover_file = image_file.resize((360, 202))
@@ -237,7 +237,7 @@ class RecommendationsPage(tk.Frame):
         subheading.pack()
 
         for recommendation in root.recommendations:
-            image_file = Image.open(f"images/{recommendation}.jpg")
+            image_file = Image.open(f"../images/{recommendation}.jpg")
             image_file = image_file.resize((356, 200))
             img = ImageTk.PhotoImage(image_file)
             resultDisplay = tk.Label(self,
