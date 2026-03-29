@@ -7,6 +7,7 @@ class App(tk.Tk):  # TODO: add how this was taken from stackOverflow
     # movies = {"ape", "apple", "peach", "puppy"}
     chosen_movie = ""
     # recommendations = {"ape", "apple"}  # TODO: replace this with the actual reccs
+    recommendations = []
 
     scraper = requests.Session(impersonate="chrome")
 

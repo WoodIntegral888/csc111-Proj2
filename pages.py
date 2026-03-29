@@ -4,6 +4,7 @@ import difflib
 from PIL import Image, ImageTk
 
 from scraper import is_vaild_movie, load_movie_image
+import review_graph
 
 
 class StarterPage(tk.Frame):
@@ -211,7 +212,7 @@ class MovieConfirmPage(tk.Frame):
         imgHover_file = image_file.resize((360, 202))
 
         self.load_interact_option(
-            root, imgStatic_file, imgHover_file, f"{root.chosen_movie.upper()}"
+            root, imgStatic_file, imgHover_file, root.chosen_movie
         )
 
     def load_interact_option(
@@ -265,14 +266,14 @@ class RecommendationsPage(tk.Frame):
         )
         title.pack()
 
-        btn_static = tk.PhotoImage(file="images/seeResults1.png")
-        btn_hover = tk.PhotoImage(file="images/seeResults2.png")
+        btn_static = tk.PhotoImage(file="images/startedBtn1.png")
+        btn_hover = tk.PhotoImage(file="images/startedBtn2.png")
 
         button = tk.Label(self, image=btn_static, bg="#3C1D53")
         button.image = btn_static
         button.pack(pady="100")
 
-        button.bind("<Button-1>", lambda e: self.load_options(root, button))
+        button.bind("<Button-1>", lambda e: self.calculate_recommendations(root, button))
         button.bind(
             "<Enter>",
             lambda e: root.switch_btn_hover(button, btn_hover, btn_static, True),
@@ -281,6 +282,29 @@ class RecommendationsPage(tk.Frame):
             "<Leave>",
             lambda e: root.switch_btn_hover(button, btn_hover, btn_static, False),
         )
+
+    def calculate_recommendations(self, root, button):
+        button.destroy()
+        graph_of_reviews = review_graph.ReviewGraph()
+        root.recommendations = graph_of_reviews.get_recommendation_list(root.chosen_movie)
+        print("recs: "+ str(root.recommendations))
+
+        # btn_static = tk.PhotoImage(file="images/seeResults1.png")
+        # btn_hover = tk.PhotoImage(file="images/seeResults2.png")
+        #
+        # button = tk.Label(self, image=btn_static, bg="#3C1D53")
+        # button.image = btn_static
+        # button.pack(pady="100")
+        #
+        # button.bind("<Button-1>", lambda e: self.load_options(root, button))
+        # button.bind(
+        #     "<Enter>",
+        #     lambda e: root.switch_btn_hover(button, btn_hover, btn_static, True),
+        # )
+        # button.bind(
+        #     "<Leave>",
+        #     lambda e: root.switch_btn_hover(button, btn_hover, btn_static, False),
+        # )
 
     def load_options(self, root, button):
         button.destroy()
@@ -296,28 +320,29 @@ class RecommendationsPage(tk.Frame):
         subheading.pack()
 
         for recommendation in root.recommendations:
-            image_file = Image.open(f"../images/{recommendation}.jpg")
-            image_file = image_file.resize((356, 200))
-            img = ImageTk.PhotoImage(image_file)
-            resultDisplay = tk.Label(
-                self,
-                text=recommendation,
-                image=img,
-                font=("Futura-Bold", 20),
-                anchor="w",
-                bg="#3C1D53",
-                fg="#85CFFF",
-                compound="top",
-            )
-            resultDisplay.image = img
-            resultDisplay.pack(side="left")
-            fake_text = {}
-            descrip = tk.Label(
-                self,
-                text=recommendation,
-                font=("Futura-Bold", 20),
-                bg="#3C1D53",
-                fg="#85CFFF",
-                compound="top",
-            )
-            descrip.pack()
+            print(recommendation)
+            # image_file = Image.open(f"../images/{recommendation}.jpg")
+            # image_file = image_file.resize((356, 200))
+            # img = ImageTk.PhotoImage(image_file)
+            # resultDisplay = tk.Label(
+            #     self,
+            #     text=recommendation,
+            #     image=img,
+            #     font=("Futura-Bold", 20),
+            #     anchor="w",
+            #     bg="#3C1D53",
+            #     fg="#85CFFF",
+            #     compound="top",
+            # )
+            # resultDisplay.image = img
+            # resultDisplay.pack(side="left")
+            # fake_text = {}
+            # descrip = tk.Label(
+            #     self,
+            #     text=recommendation,
+            #     font=("Futura-Bold", 20),
+            #     bg="#3C1D53",
+            #     fg="#85CFFF",
+            #     compound="top",
+            # )
+            # descrip.pack()
