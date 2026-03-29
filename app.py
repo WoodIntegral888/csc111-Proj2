@@ -9,6 +9,8 @@ class App(tk.Tk):  # TODO: add how this was taken from stackOverflow
     # recommendations = {"ape", "apple"}  # TODO: replace this with the actual reccs
     recommendations = []
 
+    genres = set()
+
     scraper = requests.Session(impersonate="chrome")
 
     def __init__(self):

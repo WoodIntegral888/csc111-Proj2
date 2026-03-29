@@ -184,7 +184,7 @@ class ReviewGraph:
 
         return log2(len(shared_neighbours)) * self.get_similarity_score(item1, item2)
 
-    def get_recommendation_list(self, movie_name: str):
+    def get_recommendation_list(self, movie_name: str) -> list[str]:
         """TODO"""
 
         movie_list = []

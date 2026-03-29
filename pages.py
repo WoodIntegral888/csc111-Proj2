@@ -4,7 +4,7 @@ import difflib
 from PIL import Image, ImageTk
 
 from scraper import is_vaild_movie, load_movie_image
-import review_graph
+from review_graph import ReviewGraph
 
 
 class StarterPage(tk.Frame):
@@ -156,6 +156,9 @@ class QuestionsPage(tk.Frame):
         elif vaild_movie:
             load_movie_image(movie_name, root.scraper)
             root.chosen_movie = movie_name
+            for i in range(len(self.genre_variables)):
+                if self.genre_variables[i] == 1:
+                    root.genres.add(self.genres_list[i])
             root.switch_frame("MovieConfirmPage")
 
     def is_valid_genre_selection(self) -> bool:
@@ -273,7 +276,9 @@ class RecommendationsPage(tk.Frame):
         button.image = btn_static
         button.pack(pady="100")
 
-        button.bind("<Button-1>", lambda e: self.calculate_recommendations(root, button))
+        button.bind(
+            "<Button-1>", lambda e: self.calculate_recommendations(root, button)
+        )
         button.bind(
             "<Enter>",
             lambda e: root.switch_btn_hover(button, btn_hover, btn_static, True),
@@ -285,10 +290,38 @@ class RecommendationsPage(tk.Frame):
 
     def calculate_recommendations(self, root, button):
         button.destroy()
-        graph_of_reviews = review_graph.ReviewGraph()
-        root.recommendations = graph_of_reviews.get_recommendation_list(root.chosen_movie)
-        print("recs: "+ str(root.recommendations))
 
+        import scraper
+
+        users_and_reviews = scraper.viewers_and_reviews_from_movie(
+            root.chosen_movie, root.scraper, viewer_count=10
+        )
+
+        review_graph = ReviewGraph()
+        for user, reviews in users_and_reviews.items():
+            review_graph.insert_user_and_watched_movies(user, reviews)
+
+        recommendation_list_with_out_genre = review_graph.get_recommendation_list(
+            root.chosen_movie
+        )
+
+        recommendation_list = []
+
+        print(recommendation_list_with_out_genre)
+
+        preferred_genres = root.genres
+        for recommendation in recommendation_list_with_out_genre:
+            genres = scraper.get_movie_genres_and_director(
+                recommendation, root.scraper
+            )["genres"]
+            if len(genres.intersection(preferred_genres)) != 0:
+                recommendation_list.append(recommendation)
+            if len(recommendation_list) == 5:
+                break
+
+        print(recommendation_list)
+
+        print("recs: " + str(root.recommendations))
 
         # btn_static = tk.PhotoImage(file="images/seeResults1.png")
         # btn_hover = tk.PhotoImage(file="images/seeResults2.png")

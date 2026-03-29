@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from curl_cffi import Session
+from curl_cffi import AsyncSession
 
 LETTER_BOXD = "https://letterboxd.com"
 
@@ -45,10 +46,14 @@ def get_movies_watched(
         soup = BeautifulSoup(response.text, "html.parser")
         for review in soup.select("article.production-viewing"):
             primaryname_element = review.select_one("h2.primaryname a")
+
+            # Some people have rewatched the same movie serveral times
+            # Formatted as movie_name/review_number, hence the final split
             name = (
                 primaryname_element.get("href")
                 .removeprefix(f"/{username}/film/")
                 .strip("/")
+                .split("/")[0]
             )
 
             if not review.select_one("svg.-rating"):
@@ -118,7 +123,6 @@ def viewers_and_reviews_from_movie(
     reviews = {}
 
     for viewer in viewers:
-        print(viewer)
         viewer_reviews = get_movies_watched(viewer, scraper)
         reviews[viewer] = viewer_reviews
 
