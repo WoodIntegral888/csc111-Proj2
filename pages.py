@@ -6,6 +6,9 @@ from PIL import Image, ImageTk
 from scraper import is_vaild_movie, load_movie_image
 from review_graph import ReviewGraph
 
+import scraper
+import asyncio
+
 
 class StarterPage(tk.Frame):
     def __init__(self, container: tk.Frame, root):
@@ -144,7 +147,9 @@ class QuestionsPage(tk.Frame):
 
         movie_name = self.favMovieAnswerVar.get()
 
-        vaild_movie = is_vaild_movie(movie_name, root.scraper)
+        vaild_movie = root.event_loop.run_until_complete(
+            is_vaild_movie(movie_name, root.scraper)
+        )
 
         if not vaild_movie:
             messagebox.showerror(
@@ -154,7 +159,9 @@ class QuestionsPage(tk.Frame):
         if not self.is_valid_genre_selection():
             messagebox.showerror("showerror", "Please select AT MOST 3 genres.")
         elif vaild_movie:
-            load_movie_image(movie_name, root.scraper)
+            root.event_loop.run_until_complete(
+                load_movie_image(movie_name, root.scraper)
+            )
             root.chosen_movie = movie_name
             for i in range(len(self.genre_variables)):
                 if self.genre_variables[i] == 1:
@@ -291,54 +298,59 @@ class RecommendationsPage(tk.Frame):
     def calculate_recommendations(self, root, button):
         button.destroy()
 
-        import scraper
-
-        users_and_reviews = scraper.viewers_and_reviews_from_movie(
-            root.chosen_movie, root.scraper, viewer_count=10
+        users_and_reviews = root.event_loop.run_until_complete(
+            scraper.viewers_and_reviews_from_movie(
+                root.chosen_movie, root.scraper, viewer_count=10
+            )
         )
 
         review_graph = ReviewGraph()
         for user, reviews in users_and_reviews.items():
             review_graph.insert_user_and_watched_movies(user, reviews)
 
-        recommendation_list_with_out_genre = review_graph.get_recommendation_list(
+        recommendation_list_long = review_graph.get_recommendation_list(
             root.chosen_movie
         )
 
-        recommendation_list = []
+        recommendation_list = [
+            recommendation_list_long[1],
+            recommendation_list_long[2],
+            recommendation_list_long[3],
+            recommendation_list_long[4],
+            recommendation_list_long[5],
+        ]
 
-        print(recommendation_list_with_out_genre)
+        root.event_loop.run_until_complete(
+            asyncio.gather(
+                *[
+                    load_movie_image(recommendation, root.scraper)
+                    for recommendation in recommendation_list
+                ]
+            )
+        )
 
-        preferred_genres = root.genres
-        for recommendation in recommendation_list_with_out_genre:
-            genres = scraper.get_movie_genres_and_director(
-                recommendation, root.scraper
-            )["genres"]
-            if len(genres.intersection(preferred_genres)) != 0:
-                recommendation_list.append(recommendation)
-            if len(recommendation_list) == 5:
-                break
+        root.recommendations = recommendation_list
 
         print(recommendation_list)
 
         print("recs: " + str(root.recommendations))
 
-        # btn_static = tk.PhotoImage(file="images/seeResults1.png")
-        # btn_hover = tk.PhotoImage(file="images/seeResults2.png")
-        #
-        # button = tk.Label(self, image=btn_static, bg="#3C1D53")
-        # button.image = btn_static
-        # button.pack(pady="100")
-        #
-        # button.bind("<Button-1>", lambda e: self.load_options(root, button))
-        # button.bind(
-        #     "<Enter>",
-        #     lambda e: root.switch_btn_hover(button, btn_hover, btn_static, True),
-        # )
-        # button.bind(
-        #     "<Leave>",
-        #     lambda e: root.switch_btn_hover(button, btn_hover, btn_static, False),
-        # )
+        btn_static = tk.PhotoImage(file="images/seeResults1.png")
+        btn_hover = tk.PhotoImage(file="images/seeResults2.png")
+
+        button = tk.Label(self, image=btn_static, bg="#3C1D53")
+        button.image = btn_static
+        button.pack(pady="100")
+
+        button.bind("<Button-1>", lambda e: self.load_options(root, button))
+        button.bind(
+            "<Enter>",
+            lambda e: root.switch_btn_hover(button, btn_hover, btn_static, True),
+        )
+        button.bind(
+            "<Leave>",
+            lambda e: root.switch_btn_hover(button, btn_hover, btn_static, False),
+        )
 
     def load_options(self, root, button):
         button.destroy()

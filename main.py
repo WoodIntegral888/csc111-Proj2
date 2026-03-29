@@ -3,13 +3,18 @@ from app import App
 app = App()
 app.mainloop()
 
+
+# import asyncio
 # from curl_cffi import requests
-# from scraper import get_movies_watched
 
-# session = requests.Session(impersonate="chrome")
+# from scraper import viewers_and_reviews_from_movie
 
-# movies_watched = get_movies_watched("pizz4pandarevs", session)
+# session = requests.AsyncSession(impersonate="chrome")
+
+# data = asyncio.run(
+#     viewers_and_reviews_from_movie("friday-the-13th", session, viewer_count=10)
+# )
 
 # import pprint
 
-# pprint.pprint(movies_watched)
+# pprint.pprint(data)

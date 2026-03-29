@@ -1,3 +1,4 @@
+import asyncio
 from bs4 import BeautifulSoup
 from curl_cffi import Session
 from curl_cffi import AsyncSession
@@ -5,7 +6,7 @@ from curl_cffi import AsyncSession
 LETTER_BOXD = "https://letterboxd.com"
 
 
-def load_movie_image(movie_name: str, scraper: Session) -> None:
+async def load_movie_image(movie_name: str, scraper: AsyncSession) -> None:
     """Save the Letterboxd backdrop image of movie_name into the images folder
 
     Preconditions:
@@ -13,19 +14,19 @@ def load_movie_image(movie_name: str, scraper: Session) -> None:
         - The images folder exists
     """
 
-    response = scraper.get(f"{LETTER_BOXD}/film/{movie_name}/")
+    response = await scraper.get(f"{LETTER_BOXD}/film/{movie_name}/")
 
     soup = BeautifulSoup(response.text, "html.parser")
 
     image_link = soup.find("meta", property="og:image").get("content")
-    image_content = scraper.get(image_link).content
+    image_content = (await scraper.get(image_link)).content
 
     with open(f"./images/{movie_name}.jpg", "wb") as movie_image_file:
         movie_image_file.write(image_content)
 
 
-def get_movies_watched(
-    username: str, scraper: Session, max_review_count=100
+async def get_movies_watched(
+    username: str, scraper: AsyncSession, max_review_count=100
 ) -> dict[str, int]:
     """Return a dictionary of movie names and ratings from username
 
@@ -36,12 +37,14 @@ def get_movies_watched(
         - username is a vaild username on letterboxd
     """
 
+    print(username)
+
     reviews = {}
 
     movie_reviewers_link = f"/{username}/reviews/"
 
     while True:
-        response = scraper.get(f"{LETTER_BOXD}/{movie_reviewers_link}")
+        response = await scraper.get(f"{LETTER_BOXD}/{movie_reviewers_link}")
 
         soup = BeautifulSoup(response.text, "html.parser")
         for review in soup.select("article.production-viewing"):
@@ -73,8 +76,8 @@ def get_movies_watched(
     return reviews
 
 
-def get_movie_viewers(
-    movie_name: str, scraper: Session, max_user_count=100
+async def get_movie_viewers(
+    movie_name: str, scraper: AsyncSession, max_user_count=100
 ) -> set[str]:
     """Return a set of usernames who have reviewed movie_name
 
@@ -89,7 +92,7 @@ def get_movie_viewers(
     movie_reviewers_link = f"/film/{movie_name}/reviews/by/added-earliest/"
 
     while True:
-        response = scraper.get(f"{LETTER_BOXD}{movie_reviewers_link}")
+        response = await scraper.get(f"{LETTER_BOXD}{movie_reviewers_link}")
 
         soup = BeautifulSoup(response.text, "html.parser")
         for review in soup.select("article.production-viewing"):
@@ -107,8 +110,8 @@ def get_movie_viewers(
     return usernames
 
 
-def viewers_and_reviews_from_movie(
-    movie_name: str, scraper: Session, viewer_count=100
+async def viewers_and_reviews_from_movie(
+    movie_name: str, scraper: AsyncSession, viewer_count=100
 ) -> dict[str, dict[str, int]]:
     """Return a dictionary of of users and their reviews of movies.
 
@@ -118,25 +121,28 @@ def viewers_and_reviews_from_movie(
         - movie_name is a vaild movie on letterboxd
     """
 
-    viewers = get_movie_viewers(movie_name, scraper, viewer_count)
+    viewers = list(await get_movie_viewers(movie_name, scraper, viewer_count))
+
+    review_list = await asyncio.gather(
+        *[get_movies_watched(viewer, scraper) for viewer in viewers]
+    )
 
     reviews = {}
 
-    for viewer in viewers:
-        viewer_reviews = get_movies_watched(viewer, scraper)
-        reviews[viewer] = viewer_reviews
+    for i in range(len(viewers)):
+        reviews[viewers[i]] = review_list[i]
 
     return reviews
 
 
-def get_movie_genres_and_director(movie_name: str, scraper: Session) -> dict:
+async def get_movie_genres_and_director(movie_name: str, scraper: AsyncSession) -> dict:
     """Return a dictionary containing the director of movie_name and the genres movie_name belongs to
 
     Preconditions:
         - movie_name is a vaild movie on letterboxd
     """
 
-    response = scraper.get(f"{LETTER_BOXD}/film/{movie_name}/genres/")
+    response = await scraper.get(f"{LETTER_BOXD}/film/{movie_name}/genres/")
 
     soup = BeautifulSoup(response.text, "html.parser")
 
@@ -150,9 +156,9 @@ def get_movie_genres_and_director(movie_name: str, scraper: Session) -> dict:
     return {"genres": genres, "director": director}
 
 
-def is_vaild_movie(movie_name: str, scraper: Session) -> bool:
+async def is_vaild_movie(movie_name: str, scraper: AsyncSession) -> bool:
 
-    response = scraper.get(f"{LETTER_BOXD}/film/{movie_name}/")
+    response = await scraper.get(f"{LETTER_BOXD}/film/{movie_name}/")
 
     soup = BeautifulSoup(response.text, "html.parser")
 

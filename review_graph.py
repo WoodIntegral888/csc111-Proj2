@@ -111,7 +111,7 @@ class ReviewGraph:
         else:
             raise ValueError
 
-    def get_all_vertices(self, kind: str = None) -> set:
+    def get_all_vertices(self, kind: str = None) -> set[str]:
         """Return a set of all vertex names in this graph.
 
         Preconditions:

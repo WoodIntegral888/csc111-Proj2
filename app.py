@@ -1,6 +1,7 @@
 import tkinter as tk
 import pages
 from curl_cffi import requests
+import asyncio
 
 
 class App(tk.Tk):  # TODO: add how this was taken from stackOverflow
@@ -11,12 +12,16 @@ class App(tk.Tk):  # TODO: add how this was taken from stackOverflow
 
     genres = set()
 
-    scraper = requests.Session(impersonate="chrome")
+    scraper = requests.AsyncSession(impersonate="chrome")
+
+    event_loop = asyncio.new_event_loop()
 
     def __init__(self):
         super().__init__()
         self.title("BingeBuddy: A Personalized Movie Recommendation System")
         self.geometry("1566x968")
+
+        asyncio.set_event_loop(self.event_loop)
 
         container = tk.Frame(self, bg="#3C1D53")
         container.pack(fill="both", expand=True)
