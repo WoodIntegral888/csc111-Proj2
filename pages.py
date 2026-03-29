@@ -289,6 +289,7 @@ class RecommendationsPage(tk.Frame):
         root.recommendations = graph_of_reviews.get_recommendation_list(root.chosen_movie)
         print("recs: "+ str(root.recommendations))
 
+
         # btn_static = tk.PhotoImage(file="images/seeResults1.png")
         # btn_hover = tk.PhotoImage(file="images/seeResults2.png")
         #
