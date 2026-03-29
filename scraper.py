@@ -146,7 +146,7 @@ def get_movie_genres_and_director(movie_name: str, scraper: Session) -> dict:
     return {"genres": genres, "director": director}
 
 
-def vaild_movie(movie_name: str, scraper: Session) -> bool:
+def is_vaild_movie(movie_name: str, scraper: Session) -> bool:
 
     response = scraper.get(f"{LETTER_BOXD}/film/{movie_name}/")
 
