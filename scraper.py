@@ -19,7 +19,7 @@ def load_movie_image(movie_name: str, scraper: Session) -> None:
     image_link = soup.find("meta", property="og:image").get("content")
     image_content = scraper.get(image_link).content
 
-    with open(f"images/{movie_name}.jpg", "wb") as movie_image_file:
+    with open(f"../images/{movie_name}.jpg", "wb") as movie_image_file:
         movie_image_file.write(image_content)
 
 
