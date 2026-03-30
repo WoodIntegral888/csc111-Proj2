@@ -326,14 +326,14 @@ class RecommendationsPage(tk.Frame):
 
         top_five_movies = extra_info[1:6]
 
-        # root.event_loop.run_until_complete(
-        #     asyncio.gather(
-        #         *[
-        #             load_movie_image(recommendation, root.scraper)
-        #             for recommendation in recommendation_list_five
-        #         ]
-        #     )
-        # )
+        root.event_loop.run_until_complete(
+            asyncio.gather(
+                *[
+                    load_movie_image(recommendation["movie_name"], root.scraper)
+                    for recommendation in top_five_movies
+                ]
+            )
+        )
 
         # root.recommendations = recommendation_list_five
 
