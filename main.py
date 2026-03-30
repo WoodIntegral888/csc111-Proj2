@@ -1,21 +1,21 @@
-# from app import App
+from app import App
 
-# app = App()
-# app.mainloop()
+app = App()
+app.mainloop()
 
 
-import asyncio
-from curl_cffi import requests
+# import asyncio
+# from curl_cffi import requests
 
-from scraper import get_movie_extra_info
+# from scraper import get_movie_extra_info
 
-session = requests.AsyncSession(impersonate="chrome")
+# session = requests.AsyncSession(impersonate="chrome")
 
-data = asyncio.run(get_movie_extra_info(["dune-2021", "project-hail-mary"], session))
+# data = asyncio.run(get_movie_extra_info(["dune-2021", "project-hail-mary"], session))
 
-import pprint
+# import pprint
 
-pprint.pprint(data)
+# pprint.pprint(data)
 
 
 # review_graph = ReviewGraph()

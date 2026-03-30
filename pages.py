@@ -3,7 +3,7 @@ from tkinter import messagebox
 import difflib
 from PIL import Image, ImageTk
 
-from scraper import is_vaild_movie, load_movie_image
+from scraper import is_vaild_movie, load_movie_image, get_movie_extra_info
 from review_graph import ReviewGraph
 
 import scraper
@@ -298,6 +298,10 @@ class RecommendationsPage(tk.Frame):
     def calculate_recommendations(self, root, button):
         button.destroy()
 
+        genres = root.genres
+
+        print(genres)
+
         users_and_reviews = root.event_loop.run_until_complete(
             scraper.viewers_and_reviews_from_movie(
                 root.chosen_movie, root.scraper, viewer_count=10
@@ -312,53 +316,47 @@ class RecommendationsPage(tk.Frame):
             pprint.pprint(reviews)
             review_graph.insert_user_and_watched_movies(user, reviews)
 
-        pass
-
         recommendation_list_long = review_graph.get_recommendation_list(
             root.chosen_movie
         )
 
-        # print(recommendation_list_long)
-
-        recommendation_list = [
-            recommendation_list_long[1],
-            recommendation_list_long[2],
-            recommendation_list_long[3],
-            recommendation_list_long[4],
-            recommendation_list_long[5],
-        ]
-
-        root.event_loop.run_until_complete(
-            asyncio.gather(
-                *[
-                    load_movie_image(recommendation, root.scraper)
-                    for recommendation in recommendation_list
-                ]
-            )
+        extra_info = root.event_loop.run_until_complete(
+            get_movie_extra_info(recommendation_list_long, root.scraper)
         )
 
-        root.recommendations = recommendation_list
+        top_five_movies = extra_info[1:6]
 
-        print(recommendation_list)
+        # root.event_loop.run_until_complete(
+        #     asyncio.gather(
+        #         *[
+        #             load_movie_image(recommendation, root.scraper)
+        #             for recommendation in recommendation_list_five
+        #         ]
+        #     )
+        # )
 
-        print("recs: " + str(root.recommendations))
+        # root.recommendations = recommendation_list_five
 
-        btn_static = tk.PhotoImage(file="images/seeResults1.png")
-        btn_hover = tk.PhotoImage(file="images/seeResults2.png")
+        # print(recommendation_list_five)
 
-        button = tk.Label(self, image=btn_static, bg="#3C1D53")
-        button.image = btn_static
-        button.pack(pady="100")
+        # print("recs: " + str(root.recommendations))
 
-        button.bind("<Button-1>", lambda e: self.load_options(root, button))
-        button.bind(
-            "<Enter>",
-            lambda e: root.switch_btn_hover(button, btn_hover, btn_static, True),
-        )
-        button.bind(
-            "<Leave>",
-            lambda e: root.switch_btn_hover(button, btn_hover, btn_static, False),
-        )
+        # btn_static = tk.PhotoImage(file="images/seeResults1.png")
+        # btn_hover = tk.PhotoImage(file="images/seeResults2.png")
+
+        # button = tk.Label(self, image=btn_static, bg="#3C1D53")
+        # button.image = btn_static
+        # button.pack(pady="100")
+
+        # button.bind("<Button-1>", lambda e: self.load_options(root, button))
+        # button.bind(
+        #     "<Enter>",
+        #     lambda e: root.switch_btn_hover(button, btn_hover, btn_static, True),
+        # )
+        # button.bind(
+        #     "<Leave>",
+        #     lambda e: root.switch_btn_hover(button, btn_hover, btn_static, False),
+        # )
 
     def load_options(self, root, button):
         button.destroy()
