@@ -304,13 +304,21 @@ class RecommendationsPage(tk.Frame):
             )
         )
 
+        import pprint
+
         review_graph = ReviewGraph()
         for user, reviews in users_and_reviews.items():
+            pprint.pprint(user)
+            pprint.pprint(reviews)
             review_graph.insert_user_and_watched_movies(user, reviews)
+
+        pass
 
         recommendation_list_long = review_graph.get_recommendation_list(
             root.chosen_movie
         )
+
+        # print(recommendation_list_long)
 
         recommendation_list = [
             recommendation_list_long[1],

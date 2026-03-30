@@ -89,7 +89,7 @@ async def get_movie_viewers(
 
     usernames = set()
 
-    movie_reviewers_link = f"/film/{movie_name}/reviews/by/added-earliest/"
+    movie_reviewers_link = f"/film/{movie_name}/reviews/"
 
     while True:
         response = await scraper.get(f"{LETTER_BOXD}{movie_reviewers_link}")

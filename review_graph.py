@@ -127,18 +127,12 @@ class ReviewGraph:
     def insert_user_and_watched_movies(
         self, username: str, movies_watched: dict[str, int]
     ) -> None:
-        """Add a the user vertex, the movie vertices and the corresponding edges.
+        """Add a the user vertex, the movie vertices and the corresponding edges."""
 
-        Do nothing if the given user is already in this graph.
-        """
-
-        if username not in self._vertices:
-            self.add_vertex(username, kind="user")
-            for movie_name, rating in movies_watched.items():
-                self.add_vertex(movie_name, kind="movie")
-                self.add_edge(username, movie_name, rating)
-        else:
-            return
+        self.add_vertex(username, kind="user")
+        for movie_name, rating in movies_watched.items():
+            self.add_vertex(movie_name, kind="movie")
+            self.add_edge(username, movie_name, rating)
 
     def get_similarity_score(self, item1: str, item2: str) -> float:
         """Return a decimal number from 0.0-10.0 representing how similar the reviews are, higher better.
@@ -154,7 +148,7 @@ class ReviewGraph:
 
         shared_neighbours = self.get_shared_neighbours(item1, item2)
 
-        if shared_neighbours == {}:
+        if shared_neighbours == set():
             return 0.0
 
         total = 0.0
@@ -179,7 +173,9 @@ class ReviewGraph:
 
         shared_neighbours = self.get_shared_neighbours(item1, item2)
 
-        if len(shared_neighbours) == 0:
+        print(shared_neighbours)
+
+        if shared_neighbours == set():
             return 0.0
 
         return log2(len(shared_neighbours)) * self.get_similarity_score(item1, item2)
