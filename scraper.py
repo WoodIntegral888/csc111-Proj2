@@ -135,25 +135,39 @@ async def viewers_and_reviews_from_movie(
     return reviews
 
 
-async def get_movie_genres_and_director(movie_name: str, scraper: AsyncSession) -> dict:
+async def get_movie_extra_info(
+    movie_names: list[str], scraper: AsyncSession
+) -> list[dict]:
     """Return a dictionary containing the director of movie_name and the genres movie_name belongs to
 
     Preconditions:
         - movie_name is a vaild movie on letterboxd
     """
 
-    response = await scraper.get(f"{LETTER_BOXD}/film/{movie_name}/genres/")
+    responses = await asyncio.gather(
+        *[
+            scraper.get(f"{LETTER_BOXD}/film/{movie_name}/genres/")
+            for movie_name in movie_names
+        ]
+    )
 
-    soup = BeautifulSoup(response.text, "html.parser")
+    extra_info_list = []
 
-    genres = set()
-    themes = soup.select_one("div.text-sluglist.capitalize")
-    for theme in themes.select("a"):
-        genres.add(theme.text)
+    for response, movie_name in zip(responses, movie_names):
+        soup = BeautifulSoup(response.text, "html.parser")
 
-    director = soup.select_one("p.credits a.contributor").text
+        genres = set()
+        themes = soup.select_one("div.text-sluglist.capitalize")
+        for theme in themes.select("a"):
+            genres.add(theme.text)
 
-    return {"genres": genres, "director": director}
+        director = soup.select_one("p.credits a.contributor").text
+
+        extra_info_list.append(
+            {"movie_name": movie_name, "genres": genres, "director": director}
+        )
+
+    return extra_info_list
 
 
 async def is_vaild_movie(movie_name: str, scraper: AsyncSession) -> bool:
