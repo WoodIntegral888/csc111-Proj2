@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import messagebox
-import difflib
 from PIL import Image, ImageTk
 
 from scraper import is_vaild_movie, load_movie_image, get_movie_extra_info
@@ -11,10 +10,10 @@ import asyncio
 
 
 class StarterPage(tk.Frame):
-    def __init__(self, container: tk.Frame, root):
+    def __init__(self, container: tk.Frame, app):
         super().__init__(container, bg="#3C1D53")
         self.load_logo()
-        self.load_started_btn(root)
+        self.load_started_btn(app)
 
     def load_logo(self):
         logo = tk.PhotoImage(file="images/bingeBuddyLogo1.png").subsample(2)
@@ -22,7 +21,7 @@ class StarterPage(tk.Frame):
         logo_label.image = logo
         logo_label.pack()
 
-    def load_started_btn(self, root):
+    def load_started_btn(self, app):
         btn_static = tk.PhotoImage(file="images/startedBtn1.png").subsample(2)
         btn_hover = tk.PhotoImage(file="images/startedBtn2.png").subsample(2)
 
@@ -30,14 +29,14 @@ class StarterPage(tk.Frame):
         button.image = btn_static
         button.pack()
 
-        button.bind("<Button-1>", lambda e: root.switch_frame("QuestionsPage"))
+        button.bind("<Button-1>", lambda e: app.switch_frame("QuestionsPage"))
         button.bind(
             "<Enter>",
-            lambda e: root.switch_btn_hover(button, btn_hover, btn_static, True),
+            lambda e: app.switch_btn_hover(button, btn_hover, btn_static, True),
         )
         button.bind(
             "<Leave>",
-            lambda e: root.switch_btn_hover(button, btn_hover, btn_static, False),
+            lambda e: app.switch_btn_hover(button, btn_hover, btn_static, False),
         )
 
 
@@ -55,7 +54,7 @@ class QuestionsPage(tk.Frame):
     genre_variables = []
     favMovieAnswerVar = ""
 
-    def __init__(self, container: tk.Frame, root):
+    def __init__(self, container: tk.Frame, app):
         super().__init__(container, bg="#3C1D53")
         title = tk.Label(
             self,
@@ -69,7 +68,7 @@ class QuestionsPage(tk.Frame):
 
         self.load_fav_movie_question()
         self.load_fav_genre_question()
-        self.load_submit_btn(root)
+        self.load_submit_btn(app)
 
     def load_fav_movie_question(self):
         favMovieQuestion = tk.Label(
@@ -125,7 +124,7 @@ class QuestionsPage(tk.Frame):
             )
             genreOption.pack()
 
-    def load_submit_btn(self, root):
+    def load_submit_btn(self, app):
         btn_static = tk.PhotoImage(file="images/submitBtn1.png").subsample(3)
         btn_hover = tk.PhotoImage(file="images/submitBtn2.png").subsample(3)
 
@@ -133,22 +132,22 @@ class QuestionsPage(tk.Frame):
         button.image = btn_static
         button.pack(pady=30)
 
-        button.bind("<Button-1>", lambda e: self.check_submit(root))
+        button.bind("<Button-1>", lambda e: self.check_submit(app))
         button.bind(
             "<Enter>",
-            lambda e: root.switch_btn_hover(button, btn_hover, btn_static, True),
+            lambda e: app.switch_btn_hover(button, btn_hover, btn_static, True),
         )
         button.bind(
             "<Leave>",
-            lambda e: root.switch_btn_hover(button, btn_hover, btn_static, False),
+            lambda e: app.switch_btn_hover(button, btn_hover, btn_static, False),
         )
 
-    def check_submit(self, root):
+    def check_submit(self, app):
 
-        movie_name = self.favMovieAnswerVar.get()
+        movie_name = self.favMovieAnswerVar.get().lower()
 
-        vaild_movie = root.event_loop.run_until_complete(
-            is_vaild_movie(movie_name, root.scraper)
+        vaild_movie = app.event_loop.run_until_complete(
+            is_vaild_movie(movie_name, app.scraper)
         )
 
         if not vaild_movie:
@@ -159,21 +158,21 @@ class QuestionsPage(tk.Frame):
         if not self.is_valid_genre_selection():
             messagebox.showerror("showerror", "Please select AT MOST 3 genres.")
         elif vaild_movie:
-            root.event_loop.run_until_complete(
-                load_movie_image(movie_name, root.scraper)
+            app.event_loop.run_until_complete(
+                load_movie_image(movie_name, app.scraper)
             )
-            root.chosen_movie = movie_name
+            app.chosen_movie = movie_name
             for i in range(len(self.genre_variables)):
                 if self.genre_variables[i] == 1:
-                    root.genres.add(self.genres_list[i])
-            root.switch_frame("MovieConfirmPage")
+                    app.genres.add(self.genres_list[i])
+            app.switch_frame("MovieConfirmPage")
 
     def is_valid_genre_selection(self) -> bool:
         return [genre_var.get() for genre_var in self.genre_variables].count(1) <= 3
 
 
 class MovieConfirmPage(tk.Frame):
-    def __init__(self, container: tk.Frame, root):
+    def __init__(self, container: tk.Frame, app):
         super().__init__(container, bg="#3C1D53")
         title = tk.Label(
             self,
@@ -192,17 +191,17 @@ class MovieConfirmPage(tk.Frame):
         button.image = btn_static
         button.pack(pady="100")
 
-        button.bind("<Button-1>", lambda e: self.load_options(root, button))
+        button.bind("<Button-1>", lambda e: self.load_options(app, button))
         button.bind(
             "<Enter>",
-            lambda e: root.switch_btn_hover(button, btn_hover, btn_static, True),
+            lambda e: app.switch_btn_hover(button, btn_hover, btn_static, True),
         )
         button.bind(
             "<Leave>",
-            lambda e: root.switch_btn_hover(button, btn_hover, btn_static, False),
+            lambda e: app.switch_btn_hover(button, btn_hover, btn_static, False),
         )
 
-    def load_options(self, root, button):
+    def load_options(self, app, button):
         button.destroy()
         subheading = tk.Label(
             self,
@@ -216,17 +215,17 @@ class MovieConfirmPage(tk.Frame):
         subheading.pack()
 
         # for result in search_results:
-        image_file = Image.open(f"./images/{root.chosen_movie}.jpg")
+        image_file = Image.open(f"./images/{app.chosen_movie}.jpg")
 
-        imgStatic_file = image_file.resize((356, 200))
-        imgHover_file = image_file.resize((360, 202))
+        imgStatic_file = image_file.resize((800, 450))
+        imgHover_file = image_file.resize((795, 447))
 
         self.load_interact_option(
-            root, imgStatic_file, imgHover_file, root.chosen_movie
+            app, imgStatic_file, imgHover_file, app.chosen_movie
         )
 
     def load_interact_option(
-        self, root, static_img_file, hover_img_file, movie_name: str
+        self, app, static_img_file, hover_img_file, movie_name: str
     ):
         staticImg = ImageTk.PhotoImage(static_img_file)
         hoverImg = ImageTk.PhotoImage(hover_img_file)
@@ -245,25 +244,25 @@ class MovieConfirmPage(tk.Frame):
         resultDisplay.pack()
 
         resultDisplay.bind(
-            "<Button-1>", lambda e: self.set_selected_movie(root, movie_name)
+            "<Button-1>", lambda e: self.set_selected_movie(app, movie_name)
         )
         resultDisplay.bind(
             "<Enter>",
-            lambda e: root.switch_btn_hover(resultDisplay, hoverImg, staticImg, True),
+            lambda e: app.switch_btn_hover(resultDisplay, hoverImg, staticImg, True),
         )
         resultDisplay.bind(
             "<Leave>",
-            lambda e: root.switch_btn_hover(resultDisplay, hoverImg, staticImg, False),
+            lambda e: app.switch_btn_hover(resultDisplay, hoverImg, staticImg, False),
         )
 
-    def set_selected_movie(self, root, movie_name):
-        root.chosen_movie = movie_name
-        print(root.chosen_movie)
-        root.switch_frame("RecommendationsPage")
+    def set_selected_movie(self, app, movie_name):
+        app.chosen_movie = movie_name
+        print(app.chosen_movie)
+        app.switch_frame("RecommendationsPage")
 
 
 class RecommendationsPage(tk.Frame):
-    def __init__(self, container: tk.Frame, root):
+    def __init__(self, container: tk.Frame, app):
         super().__init__(container, bg="#3C1D53")
 
         title = tk.Label(
@@ -276,35 +275,35 @@ class RecommendationsPage(tk.Frame):
         )
         title.pack()
 
-        btn_static = tk.PhotoImage(file="images/startedBtn1.png")
-        btn_hover = tk.PhotoImage(file="images/startedBtn2.png")
+        btn_static = tk.PhotoImage(file="images/compute1.png")
+        btn_hover = tk.PhotoImage(file="images/compute2.png")
 
         button = tk.Label(self, image=btn_static, bg="#3C1D53")
         button.image = btn_static
         button.pack(pady="100")
 
         button.bind(
-            "<Button-1>", lambda e: self.calculate_recommendations(root, button)
+            "<Button-1>", lambda e: self.calculate_recommendations(app, button)
         )
         button.bind(
             "<Enter>",
-            lambda e: root.switch_btn_hover(button, btn_hover, btn_static, True),
+            lambda e: app.switch_btn_hover(button, btn_hover, btn_static, True),
         )
         button.bind(
             "<Leave>",
-            lambda e: root.switch_btn_hover(button, btn_hover, btn_static, False),
+            lambda e: app.switch_btn_hover(button, btn_hover, btn_static, False),
         )
 
-    def calculate_recommendations(self, root, button):
+    def calculate_recommendations(self, app, button):
         button.destroy()
 
-        genres = root.genres
+        genres = app.genres
 
         print(genres)
 
-        users_and_reviews = root.event_loop.run_until_complete(
+        users_and_reviews = app.event_loop.run_until_complete(
             scraper.viewers_and_reviews_from_movie(
-                root.chosen_movie, root.scraper, viewer_count=10
+                app.chosen_movie, app.scraper, viewer_count=10
             )
         )
 
@@ -316,53 +315,53 @@ class RecommendationsPage(tk.Frame):
             pprint.pprint(reviews)
             review_graph.insert_user_and_watched_movies(user, reviews)
 
-        recommendation_list_long = review_graph.get_recommendation_list(
-            root.chosen_movie
+        recommendation_list_long = review_graph.get_recommendation_list(app.chosen_movie)
+        app.recommendations = recommendation_list_long[1:6]
+
+        extra_info = app.event_loop.run_until_complete(
+            get_movie_extra_info(app.recommendations, app.scraper)
         )
 
-        extra_info = root.event_loop.run_until_complete(
-            get_movie_extra_info(recommendation_list_long, root.scraper)
-        )
+        # top_five_movies = extra_info[1:6]
+        #
+        # app.event_loop.run_until_complete(
+        #     asyncio.gather(
+        #         *[
+        #             load_movie_image(recommendation["movie_name"], app.scraper)
+        #             for recommendation in top_five_movies
+        #         ]
+        #     )
+        # )
 
-        top_five_movies = extra_info[1:6]
-
-        root.event_loop.run_until_complete(
-            asyncio.gather(
-                *[
-                    load_movie_image(recommendation["movie_name"], root.scraper)
-                    for recommendation in top_five_movies
-                ]
+        for recommendation in app.recommendations:
+            app.event_loop.run_until_complete(
+                load_movie_image(recommendation, app.scraper)
             )
+
+        print("recs: " + str(app.recommendations))
+
+        btn_static = tk.PhotoImage(file="images/seeResults1.png")
+        btn_hover = tk.PhotoImage(file="images/seeResults2.png")
+
+        button = tk.Label(self, image=btn_static, bg="#3C1D53")
+        button.image = btn_static
+        button.pack(pady="100")
+
+        button.bind("<Button-1>", lambda e: self.load_options(app, button, extra_info))
+        button.bind(
+            "<Enter>",
+            lambda e: app.switch_btn_hover(button, btn_hover, btn_static, True),
+        )
+        button.bind(
+            "<Leave>",
+            lambda e: app.switch_btn_hover(button, btn_hover, btn_static, False),
         )
 
-        # root.recommendations = recommendation_list_five
-
-        # print(recommendation_list_five)
-
-        # print("recs: " + str(root.recommendations))
-
-        # btn_static = tk.PhotoImage(file="images/seeResults1.png")
-        # btn_hover = tk.PhotoImage(file="images/seeResults2.png")
-
-        # button = tk.Label(self, image=btn_static, bg="#3C1D53")
-        # button.image = btn_static
-        # button.pack(pady="100")
-
-        # button.bind("<Button-1>", lambda e: self.load_options(root, button))
-        # button.bind(
-        #     "<Enter>",
-        #     lambda e: root.switch_btn_hover(button, btn_hover, btn_static, True),
-        # )
-        # button.bind(
-        #     "<Leave>",
-        #     lambda e: root.switch_btn_hover(button, btn_hover, btn_static, False),
-        # )
-
-    def load_options(self, root, button):
+    def load_options(self, app, button, info: list[dict]):
         button.destroy()
         subheading = tk.Label(
             self,
-            text=f"Because you liked {root.chosen_movie}...",
+            text=f"Because you liked {app.chosen_movie}...",
             font=("Futura-Bold", 40),
             bg="#3C1D53",
             anchor="w",
@@ -371,30 +370,25 @@ class RecommendationsPage(tk.Frame):
         )
         subheading.pack()
 
-        for recommendation in root.recommendations:
-            print(recommendation)
-            # image_file = Image.open(f"../images/{recommendation}.jpg")
-            # image_file = image_file.resize((356, 200))
-            # img = ImageTk.PhotoImage(image_file)
-            # resultDisplay = tk.Label(
-            #     self,
-            #     text=recommendation,
-            #     image=img,
-            #     font=("Futura-Bold", 20),
-            #     anchor="w",
-            #     bg="#3C1D53",
-            #     fg="#85CFFF",
-            #     compound="top",
-            # )
-            # resultDisplay.image = img
-            # resultDisplay.pack(side="left")
-            # fake_text = {}
-            # descrip = tk.Label(
-            #     self,
-            #     text=recommendation,
-            #     font=("Futura-Bold", 20),
-            #     bg="#3C1D53",
-            #     fg="#85CFFF",
-            #     compound="top",
-            # )
-            # descrip.pack()
+        for i in range(len(info)):
+            description_txt = (info[i]['movie_name'].upper().replace("-", " ") +
+                "\nDirected by " + info[i]["director"] +
+                "\nGenres:" + str(info[i]["genres"]))
+
+            image_file = Image.open(f"./images/{info[i]['movie_name']}.jpg")
+            image_file = image_file.resize((600, 337))
+            img = ImageTk.PhotoImage(image_file)
+
+            resultDisplay = tk.Label(
+                self,
+                text=description_txt,
+                image=img,
+                font=("Futura-Bold", 20),
+                anchor="w",
+                bg="#3C1D53",
+                fg="#85CFFF",
+                compound="top",
+            )
+            resultDisplay.image = img
+            resultDisplay.pack(pady=2)
+

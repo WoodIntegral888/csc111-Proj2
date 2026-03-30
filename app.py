@@ -5,9 +5,7 @@ import asyncio
 
 
 class App(tk.Tk):  # TODO: add how this was taken from stackOverflow
-    # movies = {"ape", "apple", "peach", "puppy"}
     chosen_movie = ""
-    # recommendations = {"ape", "apple"}  # TODO: replace this with the actual reccs
     recommendations = []
 
     genres = set()
@@ -23,7 +21,10 @@ class App(tk.Tk):  # TODO: add how this was taken from stackOverflow
 
         asyncio.set_event_loop(self.event_loop)
 
-        container = tk.Frame(self, bg="#3C1D53")
+        canvas = tk.Canvas(self, bg="#3C1D53")
+        scrollbar = tk.Scrollbar(self, orient="vertical", command=canvas.yview)
+
+        container = tk.Frame(canvas, bg="#3C1D53")
         container.pack(fill="both", expand=True)
 
         self.frames = {}  # TODO: add this to class variants
@@ -41,6 +42,13 @@ class App(tk.Tk):  # TODO: add how this was taken from stackOverflow
 
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
+        container.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+
+        canvas.create_window((0, 0), window=container, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
 
         self.switch_frame("StarterPage")
 
