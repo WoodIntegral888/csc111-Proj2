@@ -1,8 +1,9 @@
 from app import App
 
-app = App()
-app.mainloop()
 
+if __name__ == '__main__':
+    app = App()
+    app.mainloop()
 
 # import asyncio
 # from curl_cffi import requests
