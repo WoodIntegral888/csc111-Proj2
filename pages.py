@@ -7,6 +7,9 @@ from scraper import is_vaild_movie, load_movie_image, get_movie_extra_info
 from review_graph import ReviewGraph
 
 BG_COLOUR = "#3C1D53"
+LIGHT_PURPLE = "#AC57EA"
+PINK = "#DA34B4"
+LIGHT_BLUE = "#85CFFF"
 
 
 class StarterPage(tk.Frame):
@@ -87,7 +90,7 @@ class QuestionsPage(tk.Frame):
             font=("Futura-Bold", 75),
             bg=BG_COLOUR,
             anchor="w",
-            fg="#AC57EA",
+            fg=LIGHT_PURPLE,
         )
         title.pack()
 
@@ -103,14 +106,14 @@ class QuestionsPage(tk.Frame):
             font=("Futura-Bold", 40),
             bg=BG_COLOUR,
             anchor="w",
-            fg="#DA34B4",
+            fg=PINK,
             height=2,
         )
         fav_movie_question.pack()
 
         fav_movie_answer_box = tk.Entry(
             self,
-            bg="#85CFFF",
+            bg=LIGHT_BLUE,
             font=("Futura-Bold", 20),
             fg=BG_COLOUR,
             textvariable=self.fav_movie_answer_var,
@@ -127,7 +130,7 @@ class QuestionsPage(tk.Frame):
             font=("Futura-Bold", 40),
             bg=BG_COLOUR,
             anchor="w",
-            fg="#DA34B4",
+            fg=PINK,
             height=2,
         )
         fav_genre_question.pack()
@@ -147,7 +150,7 @@ class QuestionsPage(tk.Frame):
                 font=("Futura-Bold", 20),
                 anchor="w",
                 bg=BG_COLOUR,
-                fg="#85CFFF",
+                fg=LIGHT_BLUE,
                 width=17,
             )
             genre_option.pack()
@@ -223,7 +226,7 @@ class MovieConfirmPage(tk.Frame):
             font=("Futura-Bold", 75),
             bg=BG_COLOUR,
             anchor="w",
-            fg="#AC57EA",
+            fg=LIGHT_PURPLE,
         )
         title.pack()
 
@@ -254,7 +257,7 @@ class MovieConfirmPage(tk.Frame):
             font=("Futura-Bold", 40),
             bg=BG_COLOUR,
             anchor="w",
-            fg="#DA34B4",
+            fg=PINK,
             height=2,
         )
         subheading.pack()
@@ -274,7 +277,7 @@ class MovieConfirmPage(tk.Frame):
             font=("Futura-Bold", 20),
             anchor="w",
             bg=BG_COLOUR,
-            fg="#85CFFF",
+            fg=LIGHT_BLUE,
             compound="top",
         )
         result_display.image = static_img
@@ -311,7 +314,7 @@ class RecommendationsPage(tk.Frame):
             font=("Futura-Bold", 75),
             bg=BG_COLOUR,
             anchor="w",
-            fg="#AC57EA",
+            fg=LIGHT_PURPLE,
         )
         title.pack()
 
@@ -395,7 +398,7 @@ class RecommendationsPage(tk.Frame):
             font=("Futura-Bold", 40),
             bg=BG_COLOUR,
             anchor="w",
-            fg="#DA34B4",
+            fg=PINK,
             height=2,
         )
         subheading.pack()
@@ -418,7 +421,7 @@ class RecommendationsPage(tk.Frame):
                 font=("Futura-Bold", 20),
                 anchor="w",
                 bg=BG_COLOUR,
-                fg="#85CFFF",
+                fg=LIGHT_BLUE,
                 compound="top",
             )
             result_display.image = img
