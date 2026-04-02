@@ -1,6 +1,5 @@
 import asyncio
 from bs4 import BeautifulSoup
-from curl_cffi import Session
 from curl_cffi import AsyncSession
 
 LETTER_BOXD = "https://letterboxd.com"
